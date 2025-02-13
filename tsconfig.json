@@ -1,0 +1,67 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "module": "NodeNext",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "resolvePackageJsonImports": true,
+    "moduleResolution": "NodeNext",
+    "baseUrl": ".",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": true,
+    "resolveJsonModule": true,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      // "@/shared/*": [
+      //   "src/shared/*"
+      // ],
+      // "@/modules/*": [
+      //   "src/modules/*"
+      // ],
+      // "@/config/*": [
+      //   "src/config/*"
+      // ],
+      // "@/interfaces/*": [
+      //   "src/interfaces/*"
+      // ],
+      // "@/contracts/*": [
+      //   "src/contracts/*"
+      // ],
+      // "@/errors/*": [
+      //   "src/errors/*"
+      // ],
+      // "@/database/*": [
+      //   "src/database/*"
+      // ],
+      // "@decorators/*": [
+      //   "src/shared/decorators/*"
+      // ],
+      // "@/repositories/*": [
+      //   "src/repositories/*"
+      // ],
+      // "@types/*": [
+      //   "src/types/*"
+      // ],
+      // "@/messages/*": [
+      //   "src/messages/*"
+      // ],
+      "@/*": [
+        "src/*"
+      ]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "types/**/*.d.ts"
+  ],
+}
