@@ -81,6 +81,7 @@ export class CatalogRepository {
             _id: 0,
             name: 1,
             slug: 1,
+            status: 1,
             description: 1,
             code: 1,
             price: 1,
