@@ -2,15 +2,36 @@ import { IInvoice, IInvoiceItem } from '@/interfaces/Invoice'
 import { model, Schema, Types } from 'mongoose'
 import { MODELS_NAMES } from '@/config/constants'
 
+const invoiceItemSchema = new Schema<IInvoiceItem>({
+  id: {
+    type: String,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+})
+
+export const InvoiceItemModel = model<IInvoiceItem>(
+  MODELS_NAMES.INVOICE_ITEMS,
+  invoiceItemSchema,
+)
+
 const invoiceSchema = new Schema<IInvoice>(
   {
     invoiceNumber: {
       type: String,
       required: true,
-    },
-    ncfNumber: {
-      type: String,
-      required: true,
+      unique: true,
     },
     rncNumber: {
       type: String,
@@ -32,12 +53,12 @@ const invoiceSchema = new Schema<IInvoice>(
       type: String,
       required: true,
     },
-    supplierName: {
-      type: String,
-      required: true,
-    },
     createdBy: {
       type: Types.ObjectId,
+      required: true,
+    },
+    items: {
+      type: [invoiceItemSchema],
       required: true,
     },
   },
@@ -49,41 +70,4 @@ const invoiceSchema = new Schema<IInvoice>(
 export const InvoiceModel = model<IInvoice>(
   MODELS_NAMES.INVOICES,
   invoiceSchema,
-)
-
-const invoiceItemSchema = new Schema<IInvoiceItem>(
-  {
-    invoiceId: {
-      type: Types.ObjectId,
-      required: true,
-    },
-    productId: {
-      type: Types.ObjectId,
-      required: true,
-    },
-    quantity: {
-      type: Number,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    unitPrice: {
-      type: Number,
-      required: true,
-    },
-    total: {
-      type: Number,
-      required: true,
-    },
-  },
-  {
-    timestamps: true,
-  },
-)
-
-export const InvoiceItemModel = model<IInvoiceItem>(
-  MODELS_NAMES.INVOICE_ITEMS,
-  invoiceItemSchema,
 )

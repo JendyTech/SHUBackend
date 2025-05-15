@@ -1,4 +1,12 @@
-import { Controller, Query, Get, Post, Body, Param } from '@nestjs/common'
+import {
+  Controller,
+  Query,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+} from '@nestjs/common'
 import { CreditNoteService } from '@/modules/credit-note/credit-note.service'
 import { PaginationDTO } from '@/shared/dto/Pagination.dto'
 import { CreateCreditNotesDto } from '@/modules/credit-note/dto/creditnote.dto'
@@ -28,5 +36,10 @@ export class CreditNoteController {
   @Post('/')
   createCreditNotes(@Body() dto: CreateCreditNotesDto, @User() user: IUser) {
     return this.creditNoteService.createCreditNote(dto, user)
+  }
+
+  @Delete('/:id')
+  deleteCreditNote(@Param('id') id: string) {
+    return this.creditNoteService.deleteHistoryItem(id)
   }
 }

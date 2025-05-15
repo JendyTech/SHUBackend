@@ -1,4 +1,12 @@
-import { Controller, Query, Get, Post, Body, Param } from '@nestjs/common'
+import {
+  Controller,
+  Query,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+} from '@nestjs/common'
 import { InvoicesService } from '@/modules/invoices/invoices.service'
 import { PaginationDTO } from '@/shared/dto/Pagination.dto'
 import { CreateInvoiceDto } from '@/modules/invoices/dto/invoice.dto'
@@ -10,8 +18,8 @@ export class InvoicesController {
   constructor(private readonly invoicesService: InvoicesService) {}
 
   @Get('/')
-  getInvoices(@Query() dto: PaginationDTO) {
-    return this.invoicesService.getInvoices(dto)
+  getInvoices() {
+    return this.invoicesService.getInvoices()
   }
 
   @Post('/')
@@ -25,5 +33,15 @@ export class InvoicesController {
     @Query('items') items: boolean = false,
   ) {
     return this.invoicesService.getInvoiceById(id, String(items) === 'true')
+  }
+
+  @Get('by-ncf/:ncf')
+  getInvoiceByNCF(@Param('ncf') ncf: string) {
+    return this.invoicesService.getInvoiceByNcf(ncf)
+  }
+
+  @Delete('/:id')
+  deleteInvoice(@Param('id') id: string) {
+    return this.invoicesService.deleteHistoryItem(id)
   }
 }

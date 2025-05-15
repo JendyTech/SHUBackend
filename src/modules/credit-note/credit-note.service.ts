@@ -9,6 +9,9 @@ import { ProductRepository } from '@/repositories/Products.repo'
 import { InvoicesRepository } from '@/repositories/Invoices.repo'
 import { PaginationDTO } from '@/shared/dto/Pagination.dto'
 import { errorResponse, successResponse } from '@/shared/functions/response'
+import INVOICE from '@/messages/Invoice.json'
+import { PreferencesRepository } from '@/repositories/Preferences.repo'
+import { nextNcf } from '@/shared/utils/nextNcf'
 
 @Injectable()
 export class CreditNoteService {
@@ -58,96 +61,38 @@ export class CreditNoteService {
   }
 
   async createCreditNote(dto: CreateCreditNotesDto, user: IUser) {
-    let products, invoice
+    const { clientName, invoiceNumber, items, reason, rncNumber } = dto
 
-    const itemsMap: Record<string, { productId: string; quantity: number }> = {}
-    const itemsCreditNote: CreateCreditNoteItem[] = []
-    const ids: string[] = []
     const currentDate = new Date()
+    const dateExpirationInvoice = dto.expirationDate
+      ? new Date(dto.expirationDate)
+      : (() => {
+          const date = new Date()
+          date.setMonth(date.getMonth() + 1)
+          return date
+        })()
 
-    try {
-      invoice = await InvoicesRepository.getInvoiceById(dto.invoiceId)
-      if (!invoice) {
-        return errorResponse({
-          message: CREDIT_NOTE.CREDIT_NOTE_INVOICE_NOT_FOUND,
-          status: HttpStatus.BAD_REQUEST,
-        })
-      }
-
-      const invoiceExpirationDate = new Date(invoice.expirationDate)
-      if (currentDate > invoiceExpirationDate) {
-        return errorResponse({
-          message: CREDIT_NOTE.CREDIT_NOTE_INVOICE_EXPIRED,
-          status: HttpStatus.BAD_REQUEST,
-        })
-      }
-    } catch (error) {
+    if (
+      new Date(currentDate.getTime() - 4 * 60 * 60 * 1000) >
+      dateExpirationInvoice
+    ) {
       return errorResponse({
-        message: GENERAL.ERROR_DATABASE_MESSAGE,
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        error,
-      })
-    }
-
-    const {
-      clientRnc,
-      paymentCondition,
-      supplierName,
-      expirationDate,
-      invoiceNumber,
-      ncfNumber,
-    } = invoice
-
-    for (const item of dto.items) {
-      ids.push(item.productId)
-      itemsMap[item.productId] = item
-    }
-
-    try {
-      products = await ProductRepository.getProductsByIds(ids)
-    } catch (error) {
-      return errorResponse({
-        message: GENERAL.ERROR_DATABASE_MESSAGE,
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        error,
-      })
-    }
-
-    if (products.length !== dto.items.length) {
-      return errorResponse({
-        message: CREDIT_NOTE.CREDIT_NOTE_ITEM_NOT_FOUND,
+        message: INVOICE.INVOICE_DATE_VALIDATION,
         status: HttpStatus.BAD_REQUEST,
       })
     }
 
-    for (const product of products) {
-      const id = product._id.toString()
-      const { quantity } = itemsMap[id]
+    const preferences = await PreferencesRepository.getPreferences()
+    const ncf = `${preferences.serieNC}${preferences.secuencialNC}`
 
-      itemsCreditNote.push({
-        productId: id,
-        quantity,
-        description: product.description,
-        unitPrice: product.price,
-        total: product.price * quantity,
-      })
-    }
-
-    let nextInvoiceNumber, nextNCF
     try {
-      const lastInvoiceNumber =
-        await CreditNoteRepository.getLastCreditNoteNumber()
-      const lastNCF = await CreditNoteRepository.getLastNCF()
-
-      nextInvoiceNumber = lastInvoiceNumber
-        ? `CN-${(parseInt(lastInvoiceNumber.replace(/\D/g, ''), 10) + 1)
-            .toString()
-            .padStart(6, '0')}`
-        : 'CN-000001'
-
-      nextNCF = lastNCF
-        ? `B040${(parseInt(lastNCF.slice(-8), 10) + 1).toString().padStart(8, '0')}`
-        : 'B04000000001'
+      const credit_note = await CreditNoteRepository.findByNcf(ncf)
+      if (credit_note) {
+        return errorResponse({
+          message: INVOICE.INVOICE_NUMBER_IN_USE,
+          status: HttpStatus.CONFLICT,
+        })
+      }
     } catch (error) {
       return errorResponse({
         message: GENERAL.ERROR_DATABASE_MESSAGE,
@@ -159,21 +104,46 @@ export class CreditNoteService {
     try {
       const newCreditNote = await CreditNoteRepository.createCreditNotes({
         ...dto,
-        invoiceNumber: invoiceNumber,
-        ncfNumber: nextNCF,
-        affectedInvoice: ncfNumber,
-        creditNoteNumber: nextInvoiceNumber,
-        items: itemsCreditNote,
+        creditNoteNumber: ncf,
+        items: items,
         createdBy: user._id,
-        expirationDate: dto.expirationDate || expirationDate,
-        clientRnc,
-        paymentCondition,
-        supplierName,
+        expirationDate: dto.expirationDate || dateExpirationInvoice,
+        clientRnc: rncNumber,
+        reason: dto.reason,
       })
+
+      try {
+        const ncf = nextNcf(preferences.secuencialNC)
+        await PreferencesRepository.updatedPreferences({
+          secuencialNC: ncf,
+        })
+      } catch (error) {
+        return errorResponse({
+          message: GENERAL.ERROR_DATABASE_MESSAGE,
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error,
+        })
+      }
 
       return successResponse({
         data: newCreditNote,
         message: CREDIT_NOTE.CREDIT_NOTE_CREATED,
+      })
+    } catch (error) {
+      return errorResponse({
+        message: GENERAL.ERROR_DATABASE_MESSAGE,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        error,
+      })
+    }
+  }
+
+  async deleteHistoryItem(id: string) {
+    try {
+      const result = await CreditNoteRepository.deleteItem(id)
+      return successResponse({
+        data: result,
+        message: 'Deleted invoice item',
       })
     } catch (error) {
       return errorResponse({

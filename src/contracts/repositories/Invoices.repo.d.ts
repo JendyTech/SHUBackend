@@ -6,11 +6,10 @@ export interface CreateInvoices
 }
 
 export interface CreateInvoiceItem {
-  productId: string
+  id: string
   quantity: number
-  description: string
-  unitPrice: number
-  total: number
+  name: string
+  price: number
 }
 
 export interface GetInvoiceByIdWithItemsResults extends IInvoice {

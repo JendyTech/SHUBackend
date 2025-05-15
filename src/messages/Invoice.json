@@ -10,5 +10,6 @@
     "INVOICES_FETCHED": "Facturas obtenidas exitosamente",
     "INVOICE_ITEMS_REQUIRED": "Se requiere al menos un artículo para la factura",
     "INVOICE_ITEM_NOT_FOUND": "No se encontraron los items de la factura",
-    "INVOICE_DATE_VALIDATION": "La fecha de la factura debe ser mayor a la fecha actual"
+    "INVOICE_DATE_VALIDATION": "La fecha de la factura debe ser mayor a la fecha actual",
+    "INVOICE_NUMBER_IN_USE": "El número de comprobante fiscal ya está en uso"
 }

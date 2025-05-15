@@ -11,10 +11,13 @@ import { TaxModule } from './modules/tax/tax.module'
 import { CatalogModule } from './modules/catalog/catalog.module'
 import { CategoryModule } from './modules/category/category.module'
 import { CreditNoteModule } from './modules/credit-note/credit-note.module'
+import { PreferencesModule } from '@/modules/preferences/preferences.module'
+import { HistoryModule } from './modules/history/history.module';
 
 @Module({
   imports: [
     AuthModule,
+    PreferencesModule,
     ProductsModule,
     UsersModule,
     InvoicesModule,
@@ -22,6 +25,7 @@ import { CreditNoteModule } from './modules/credit-note/credit-note.module'
     CatalogModule,
     CategoryModule,
     CreditNoteModule,
+    HistoryModule,
   ],
   controllers: [AppController],
   providers: [

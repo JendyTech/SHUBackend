@@ -2,40 +2,28 @@ import {
   CreateInvoices,
   GetInvoiceByIdWithItemsResults,
 } from '@/contracts/repositories/Invoices.repo'
-import { InvoiceModel, InvoiceItemModel } from '@/database/invoices.db'
-import { mongoosePagination } from '@/shared/functions/pagination'
-import { PaginationDTO } from '@/shared/dto/Pagination.dto'
+import { InvoiceModel } from '@/database/invoices.db'
 import { MODELS_NAMES } from '@/config/constants'
-import { FilterQuery, Types } from 'mongoose'
-import { IInvoice } from '@/interfaces/Invoice'
+import { Types } from 'mongoose'
 
 export class InvoicesRepository {
-  static async getInvoices(pagination: PaginationDTO) {
-    const filters: FilterQuery<IInvoice> = {}
-
-    if (pagination.search) {
-      filters.$or = [
-        {
-          invoiceNumber: { $regex: new RegExp(pagination.search, 'i') },
-        },
-        {
-          rncNumber: { $regex: new RegExp(pagination.search, 'i') },
-        },
-        {
-          clientName: { $regex: new RegExp(pagination.search, 'i') },
-        },
-      ]
-    }
-
-    return mongoosePagination({
-      ...pagination,
-      Model: InvoiceModel,
-      filter: filters,
-    })
+  static async getInvoices() {
+    const response = await InvoiceModel.find()
+    return response
   }
 
   static async getInvoiceById(id: string) {
     const result = await InvoiceModel.findById(id)
+
+    if (!result) return null
+
+    return result.toObject()
+  }
+
+  static async getInvoiceByNCF(ncf: string) {
+    const result = await InvoiceModel.findOne({
+      invoiceNumber: ncf,
+    })
 
     if (!result) return null
 
@@ -47,17 +35,7 @@ export class InvoicesRepository {
 
     const invoice = await newInvoice.save()
 
-    const itemsData = data.items.map((item) => ({
-      ...item,
-      invoiceId: invoice.id,
-    }))
-
-    const items = await InvoiceItemModel.insertMany(itemsData)
-
-    return {
-      ...invoice?.toObject(),
-      items: items.map((item) => item.toObject()),
-    }
+    return invoice?.toObject()
   }
 
   static async getInvoicesWithItems(
@@ -92,6 +70,14 @@ export class InvoicesRepository {
     return result.toObject()
   }
 
+  static async findByNcf(ncf: string) {
+    const result = await InvoiceModel.findOne({ invoiceNumber: ncf })
+
+    if (!result) return null
+
+    return result.toObject()
+  }
+
   static async getInvoiceByRnc(rncNumber: string) {
     const result = await InvoiceModel.findOne({ rncNumber })
 
@@ -108,11 +94,11 @@ export class InvoicesRepository {
     return lastInvoice?.invoiceNumber || null
   }
 
-  static async getLastNCF(): Promise<string | null> {
-    const lastInvoice = await InvoiceModel.findOne({})
-      .sort({ createdAt: -1 })
-      .select('ncfNumber')
+  static async deleteItem(id: string) {
+    const result = await InvoiceModel.findByIdAndDelete(id)
 
-    return lastInvoice?.ncfNumber || null
+    if (!result) return null
+
+    return result.toObject()
   }
 }

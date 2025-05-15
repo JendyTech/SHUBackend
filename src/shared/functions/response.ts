@@ -10,6 +10,8 @@ interface IErrorResponseParams {
 export const errorResponse = (params: IErrorResponseParams) => {
   const { message, status, extra, error } = params
 
+  console.error(error)
+
   if (error && error instanceof HttpException) {
     throw error
   }

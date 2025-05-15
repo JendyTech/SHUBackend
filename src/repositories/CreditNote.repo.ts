@@ -2,38 +2,16 @@ import {
   CreateCreditNotes,
   GetCreditNoteByIdWithItemsResults,
 } from '@/contracts/repositories/CreditNote.repo'
-import { CreditNoteModel, CreditNoteItemModel } from '@/database/creditnote.db'
-import { mongoosePagination } from '@/shared/functions/pagination'
+import { CreditNoteModel } from '@/database/creditnote.db'
 import { PaginationDTO } from '@/shared/dto/Pagination.dto'
 import { MODELS_NAMES } from '@/config/constants'
-import { FilterQuery, Types } from 'mongoose'
+import { Types } from 'mongoose'
 import { ICreditNote } from '@/interfaces/CreditNote'
 
 export class CreditNoteRepository {
   static async getCreditNotes(pagination: PaginationDTO) {
-    const filters: FilterQuery<ICreditNote> = {}
-
-    if (pagination.search) {
-      filters.$or = [
-        {
-          creditNoteNumber: { $regex: new RegExp(pagination.search, 'i') },
-        },
-        {
-          clientName: { $regex: new RegExp(pagination.search, 'i') },
-        },
-        {
-          supplierName: { $regex: new RegExp(pagination.search, 'i') },
-        },
-        {
-          reason: { $regex: new RegExp(pagination.search, 'i') },
-        },
-      ]
-    }
-
-    return mongoosePagination({
-      ...pagination,
-      Model: CreditNoteModel,
-    })
+    const response = await CreditNoteModel.find()
+    return response
   }
 
   static async getCreditNotesById(id: string) {
@@ -76,37 +54,29 @@ export class CreditNoteRepository {
     return result.toObject()
   }
 
-  static async createCreditNotes(data: CreateCreditNotes) {
+  static async findByNcf(ncf: string) {
+    const result = await CreditNoteModel.findOne({
+      creditNoteNumber: ncf,
+    })
+
+    if (!result) return null
+
+    return result.toObject()
+  }
+
+  static async createCreditNotes(data: Partial<ICreditNote>) {
     const newCreditNote = new CreditNoteModel(data)
 
     const creditNote = await newCreditNote.save()
 
-    const itemsData = data.items.map((item) => ({
-      ...item,
-      creditNoteId: creditNote.id,
-    }))
-
-    const items = await CreditNoteItemModel.insertMany(itemsData)
-
-    return {
-      ...creditNote?.toObject(),
-      items: items.map((item) => item.toObject()),
-    }
+    return creditNote?.toObject()
   }
 
-  static async getLastCreditNoteNumber(): Promise<string | null> {
-    const lastCreditNote = await CreditNoteModel.findOne({})
-      .sort({ createdAt: -1 })
-      .select('creditNoteNumber')
+  static async deleteItem(id: string) {
+    const result = await CreditNoteModel.findByIdAndDelete(id)
 
-    return lastCreditNote?.creditNoteNumber || null
-  }
+    if (!result) return null
 
-  static async getLastNCF(): Promise<string | null> {
-    const lastCreditNote = await CreditNoteModel.findOne({})
-      .sort({ createdAt: -1 })
-      .select('ncfNumber')
-
-    return lastCreditNote?.ncfNumber || null
+    return result.toObject()
   }
 }
