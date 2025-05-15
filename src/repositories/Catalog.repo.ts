@@ -45,10 +45,10 @@ export class CatalogRepository {
         filters.price.$lte = Number(maxPrice)
       }
     }
-
+    console.log(pagination)
     if (pagination.category) {
       try {
-        filters.category = new Types.ObjectId(pagination.category)
+        filters.categoryName = pagination.category
       } catch (error) {
         console.error('Error al convertir la categoría a ObjectId:', error)
       }

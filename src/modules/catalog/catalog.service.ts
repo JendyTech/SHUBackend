@@ -26,8 +26,6 @@ export class CatalogService {
         status: HttpStatus.INTERNAL_SERVER_ERROR,
       })
     }
-
-
     return successResponse({
       data: result,
       message: CATALOG.CATALOGS_FETCHED,

@@ -49,7 +49,6 @@ export class CategoryRepository {
       return null
     }
 
-    console.log(result)
 
     return result.toObject()
   }
