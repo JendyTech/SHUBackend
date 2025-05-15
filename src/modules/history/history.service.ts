@@ -42,7 +42,10 @@ export class HistoryService {
 
   async getHistoryItemById(match: string) {
     try {
-      const result = await HistoryItemsRepository.getHistoryMatchItems(match)
+      const decodedMatch = decodeURIComponent(match)
+
+      const result =
+        await HistoryItemsRepository.getHistoryMatchItems(decodedMatch)
       return successResponse({
         data: result.map((item) => ({
           name: item.name,
