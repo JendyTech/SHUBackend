@@ -6,7 +6,6 @@ export interface IProduct {
   slug: string
   price: number
   status: boolean
-  category: string | ObjectId
   categoryName: string
   description: string
   code: string

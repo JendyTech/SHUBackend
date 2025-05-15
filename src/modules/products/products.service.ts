@@ -39,58 +39,7 @@ export class ProductsService {
     let found,
       imageUrl: string | null = null,
       imagePublicId: string | null = null,
-      product,
-      category
-
-    if (!dto.categoryId && !dto.categoryName) {
-      return errorResponse({
-        message: PRODUCT.REQUIRE_CATEGORY_NAME_OR_ID,
-        status: HttpStatus.BAD_REQUEST,
-      })
-    }
-
-    if (dto.categoryId && dto.categoryName) {
-      return errorResponse({
-        message: PRODUCT.ONLY_CATEGORY_NAME_OR_CATEGORY_ID,
-        status: HttpStatus.BAD_REQUEST,
-      })
-    }
-
-    if (dto.categoryId) {
-      category = await CategoryRepository.getCategoryById(dto.categoryId)
-    }
-
-    if (dto.categoryName) {
-      try {
-        const foundName = await CategoryRepository.getCategoryByName(
-          dto.categoryName,
-        )
-
-        if (foundName) {
-          return errorResponse({
-            message: CATEGORY.CATEGORIES_FOUND,
-            status: HttpStatus.CONFLICT,
-          })
-        }
-
-        category = await CategoryRepository.createCategory({
-          name: dto.categoryName,
-        })
-      } catch (error) {
-        return errorResponse({
-          error,
-          message: GENERAL.ERROR_DATABASE_MESSAGE,
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-        })
-      }
-    }
-
-    if (!category) {
-      return errorResponse({
-        message: CATEGORY.CATEGORY_NOT_FOUND,
-        status: HttpStatus.NOT_FOUND,
-      })
-    }
+      product
 
     try {
       found = await ProductRepository.findByName(dto.name)
@@ -118,8 +67,7 @@ export class ProductsService {
         createdBy: user._id,
         imagesId: imagePublicId,
         images: imageUrl,
-        category: category._id,
-        categoryName: category.name,
+        categoryName: dto.categoryName,
       }
 
       product = await ProductRepository.createProduct(productData)

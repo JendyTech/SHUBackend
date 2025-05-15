@@ -26,11 +26,6 @@ const productSchema = new Schema<IProduct>(
     code: {
       type: String,
       required: true,
-      unique: true,
-    },
-    category: {
-      type: Types.ObjectId,
-      required: true,
     },
     categoryName: {
       type: String,

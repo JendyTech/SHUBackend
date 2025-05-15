@@ -20,11 +20,12 @@ export class CategoryRepository {
       ]
     }
 
-    return mongoosePagination({
+    const data = await mongoosePagination({
       ...pagination,
       Model: CategoryModel,
       filter: filters,
     })
+    return data
   }
 
   static async getCategoriesNoPg() {
@@ -40,11 +41,15 @@ export class CategoryRepository {
   }
 
   static async getCategoryById(id: string) {
-    const result = await CategoryModel.findById(id)
+    const result = await CategoryModel.findOne({
+      name: id,
+    })
 
     if (!result) {
       return null
     }
+
+    console.log(result)
 
     return result.toObject()
   }

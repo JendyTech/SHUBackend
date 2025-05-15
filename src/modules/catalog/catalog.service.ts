@@ -27,6 +27,7 @@ export class CatalogService {
       })
     }
 
+
     return successResponse({
       data: result,
       message: CATALOG.CATALOGS_FETCHED,

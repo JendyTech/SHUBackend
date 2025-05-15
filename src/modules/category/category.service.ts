@@ -29,22 +29,20 @@ export class CategoryService {
   }
 
   async getCategoriesNoPagination() {
-    const [error, result] = await catchError(async () => {
-      return await CategoryRepository.getCategoriesNoPg()
-    })
-
-    if (error) {
+    try {
+      const response = await CategoryRepository.getCategoriesNoPg()
+      const categories = response.map((category) => category.name)
+      return successResponse({
+        data: categories,
+        message: CATEGORY.CATEGORIES_FETCHED,
+      })
+    } catch (error) {
       return errorResponse({
-        error: error,
         message: GENERAL.ERROR_DATABASE_MESSAGE,
         status: HttpStatus.INTERNAL_SERVER_ERROR,
+        error,
       })
     }
-
-    return successResponse({
-      data: result,
-      message: CATEGORY.CATEGORIES_FETCHED,
-    })
   }
 
   async getCategoryById(id: string) {

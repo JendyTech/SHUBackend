@@ -21,7 +21,6 @@ export class TaxService {
         message: TAX.TAXES_FETCHED,
       }) as unknown as { data: ITax[]; message: string }
     } catch (error) {
-      console.log(error)
       return errorResponse({
         message: GENERAL.ERROR_DATABASE_MESSAGE,
         status: HttpStatus.INTERNAL_SERVER_ERROR,

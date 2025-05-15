@@ -49,7 +49,6 @@ export class CatalogRepository {
     if (pagination.category) {
       try {
         filters.category = new Types.ObjectId(pagination.category)
-        console.log(filters)
       } catch (error) {
         console.error('Error al convertir la categoría a ObjectId:', error)
       }
