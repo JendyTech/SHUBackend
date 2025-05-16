@@ -8,7 +8,7 @@ export interface IInvoice {
   expirationDate: Date
   clientName: string
   clientRnc: string
-  paymentCondition: PAYMENT_CONDITIONS
+  paymentCondition: string
   createdBy: ObjectId | string
   createdAt: Date
   updatedAt: Date

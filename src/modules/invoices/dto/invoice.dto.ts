@@ -60,8 +60,7 @@ export class CreateInvoiceDto {
   @ApiProperty({ example: 'AL_CONTADO', description: 'Condición de pago' })
   @IsString({ message: 'La condición de pago debe ser un string' })
   @IsNotEmpty({ message: 'La condición de pago no puede estar vacía' })
-  @IsEnum(PAYMENT_CONDITIONS)
-  paymentCondition: PAYMENT_CONDITIONS
+  paymentCondition: string
 
   @ApiProperty({ default: [], description: 'Items de la factura' })
   @IsArray({ message: 'Los items deben ser un array' })
