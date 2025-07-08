@@ -165,31 +165,6 @@ export class ProductsService {
       }
     }
 
-    if (dto.categoryName) {
-      try {
-        const foundCategory = await CategoryRepository.getCategoryByName(
-          dto.categoryName,
-        )
-
-        if (foundCategory) {
-          return errorResponse({
-            message: CATEGORY.CATEGORIES_FOUND,
-            status: HttpStatus.CONFLICT,
-          })
-        }
-
-        category = await CategoryRepository.createCategory({
-          name: dto.categoryName,
-        })
-      } catch (error) {
-        return errorResponse({
-          message: GENERAL.ERROR_DATABASE_MESSAGE,
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error,
-        })
-      }
-    }
-
     const { imagesToDelete = [], imagesToAdd = [] } = dto
 
     if (imagesToDelete.length > 0) {
@@ -243,8 +218,8 @@ export class ProductsService {
         slug: product.slug,
         updatedBy: user._id,
         createdBy: product.createdBy,
-        category: category._id,
-        categoryName: category.name,
+        category: product.categoryName,
+        categoryName: product.categoryName,
       }
 
       if (dto.name && dto.name !== product.name) {
