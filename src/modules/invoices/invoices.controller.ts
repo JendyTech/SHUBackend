@@ -6,10 +6,14 @@ import {
   Body,
   Param,
   Delete,
+  Patch,
 } from '@nestjs/common'
 import { InvoicesService } from '@/modules/invoices/invoices.service'
 import { PaginationDTO } from '@/shared/dto/Pagination.dto'
-import { CreateInvoiceDto } from '@/modules/invoices/dto/invoice.dto'
+import {
+  CreateInvoiceDto,
+  UpdateInvoiceDto,
+} from '@/modules/invoices/dto/invoice.dto'
 import { IUser } from '@/interfaces/User'
 import { User } from '@/shared/decorators/Session'
 
@@ -33,6 +37,11 @@ export class InvoicesController {
     @Query('items') items: boolean = false,
   ) {
     return this.invoicesService.getInvoiceById(id, String(items) === 'true')
+  }
+
+  @Patch('/:id')
+  updateInvoice(@Param('id') id: string, @Body() dto: UpdateInvoiceDto) {
+    return this.invoicesService.updateInvoice(id, dto)
   }
 
   @Get('by-ncf/:ncf')

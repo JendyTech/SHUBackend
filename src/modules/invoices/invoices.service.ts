@@ -5,7 +5,10 @@ import { HttpStatus } from '@nestjs/common'
 import { TaxService } from '@/modules/tax/tax.service'
 import { successResponse, errorResponse } from '@/shared/functions/response'
 import { InvoicesRepository } from '@/repositories/Invoices.repo'
-import { CreateInvoiceDto } from '@/modules/invoices/dto/invoice.dto'
+import {
+  CreateInvoiceDto,
+  UpdateInvoiceDto,
+} from '@/modules/invoices/dto/invoice.dto'
 import { IUser } from '@/interfaces/User'
 import { PreferencesRepository } from '@/repositories/Preferences.repo'
 import { nextNcf } from '@/shared/utils/nextNcf'
@@ -164,6 +167,32 @@ export class InvoicesService {
     } catch (error) {
       return errorResponse({
         message: GENERAL.ERROR_DATABASE_MESSAGE,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        error,
+      })
+    }
+  }
+
+  async updateInvoice(id: string, dto: UpdateInvoiceDto) {
+    try {
+      const invoice = await InvoicesRepository.getInvoiceById(id)
+
+      if (!invoice) {
+        return errorResponse({
+          message: 'Invoice not found',
+          status: HttpStatus.NOT_FOUND,
+        })
+      }
+
+      const updatedInvoice = await InvoicesRepository.update(id, dto)
+
+      return successResponse({
+        data: updatedInvoice,
+        message: INVOICE.INVOICE_UPDATED,
+      })
+    } catch (error) {
+      return errorResponse({
+        message: 'Hubo un error al actualizar la factura',
         status: HttpStatus.INTERNAL_SERVER_ERROR,
         error,
       })

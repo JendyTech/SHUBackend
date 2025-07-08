@@ -101,4 +101,14 @@ export class InvoicesRepository {
 
     return result.toObject()
   }
+
+  static async update(id: string, data: Partial<CreateInvoices>) {
+    const result = await InvoiceModel.findByIdAndUpdate(id, data, {
+      new: true,
+    })
+
+    if (!result) return null
+
+    return result.toObject()
+  }
 }
