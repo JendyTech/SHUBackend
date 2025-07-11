@@ -23,14 +23,13 @@ export class CatalogRepository {
           code: { $regex: new RegExp(pagination.search, 'i') },
         },
       ]
-    }
 
-    const pricing = Number(pagination.search)
-
-    if (!isNaN(pricing)) {
-      filters.$or.push({
-        price: pricing,
-      })
+      const pricing = Number(pagination.search)
+      if (!isNaN(pricing)) {
+        filters.$or.push({
+          price: pricing,
+        })
+      }
     }
 
     if (
@@ -38,14 +37,14 @@ export class CatalogRepository {
       pagination.maxPrice !== undefined
     ) {
       filters.price = {}
-      if (minPrice !== undefined) {
-        filters.price.$gte = Number(minPrice)
+      if (pagination.minPrice !== undefined) {
+        filters.price.$gte = Number(pagination.minPrice)
       }
-      if (maxPrice !== undefined) {
-        filters.price.$lte = Number(maxPrice)
+      if (pagination.maxPrice !== undefined) {
+        filters.price.$lte = Number(pagination.maxPrice)
       }
     }
-    console.log(pagination)
+
     if (pagination.category) {
       try {
         filters.categoryName = pagination.category
@@ -60,6 +59,9 @@ export class CatalogRepository {
       filter: filters,
       pipeline: [
         {
+          $sort: { createdAt: -1 },
+        },
+        {
           $lookup: {
             from: MODELS_NAMES.PRODUCTS_IMAGES,
             as: 'imageData',
@@ -73,21 +75,18 @@ export class CatalogRepository {
           },
         },
         {
-          $unwind: '$imageData',
+          $unwind: {
+            path: '$imageData',
+            preserveNullAndEmptyArrays: true, // Para productos sin imágenes
+          },
         },
         {
-          $project: {
-            _id: 0,
-            name: 1,
-            slug: 1,
-            status: 1,
-            description: 1,
-            code: 1,
-            price: 1,
-            category: 1,
-            categoryName: 1,
-            image: '$imageData.url',
+          $addFields: {
+            image: '$imageData.url', // Agregar campo imagen sin eliminar otros
           },
+        },
+        {
+          $unset: 'imageData', // Remover el objeto imageData temporal
         },
       ],
     })

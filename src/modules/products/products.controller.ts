@@ -65,6 +65,7 @@ export class ProductsController {
     @Body() dto: UpdateProductDto,
     @User() user: IUser,
   ) {
+    console.log('updated')
     return this.productsService.updatedProduct(dto, id, user)
   }
 

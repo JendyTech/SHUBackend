@@ -218,13 +218,15 @@ export class ProductsService {
         slug: product.slug,
         updatedBy: user._id,
         createdBy: product.createdBy,
-        category: product.categoryName,
-        categoryName: product.categoryName,
+        category: dto.categoryName,
+        categoryName: dto.categoryName,
       }
 
       if (dto.name && dto.name !== product.name) {
         updatedProductData.slug = generateSlug(dto.name)
       }
+
+      console.log('data:', updatedProductData)
 
       const updatedProduct = await ProductRepository.updatedProduct(
         id,
